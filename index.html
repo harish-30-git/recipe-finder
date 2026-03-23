@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gourmet Royale | Global Kitchen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,700;1,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">Gourmet<span>Royale</span></div>
+        <nav class="cuisine-nav">
+            <button onclick="filterByCuisine('Indian')">Indian</button>
+            <button onclick="filterByCuisine('Italian')">Italian</button>
+            <button onclick="filterByCuisine('French')">Continental</button>
+            <button id="randomBtn" class="surprise-btn">Surprise Me</button>
+        </nav>
+    </header>
+
+    <div class="search-hero">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search Biryani, Pasta, Brownies, Dosa...">
+            <button id="searchBtn">Find Recipe</button>
+        </div>
+    </div>
+
+    <div class="filter-chips">
+        <button class="chip" onclick="filterByCategory('Starter')">Starters</button>
+        <button class="chip" onclick="filterByCategory('Main')">Main Course</button>
+        <button class="chip" onclick="filterByKeyword('Biryani')">Biryani Special</button>
+        <button class="chip" onclick="filterByCategory('Dessert')">Cakes & Desserts</button>
+        <button class="chip" onclick="filterByKeyword('Dosa')">South Indian</button>
+    </div>
+
+    <main class="container">
+        <div id="recipeGrid" class="recipe-grid">
+            </div>
+    </main>
+
+    <div id="recipeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div id="modalData"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

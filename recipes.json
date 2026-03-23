@@ -1,0 +1,24 @@
+{
+  "customRecipes": [
+    {
+      "idMeal": "custom_1",
+      "strMeal": "Hyderabadi Chicken Biryani",
+      "strArea": "Indian",
+      "strCategory": "Main Course",
+      "strMealThumb": "https://images.unsplash.com/photo-1563379091339-03b21bc4a4f8?auto=format&fit=crop&w=800",
+      "strInstructions": "1. Marinate chicken with yogurt and spices.\n2. Parboil basmati rice with whole spices.\n3. Layer the chicken and rice in a pot.\n4. Dum cook for 30 mins.",
+      "strYoutube": "https://www.youtube.com/embed/95BCU1n268Y",
+      "customIng": ["Chicken - 500g", "Basmati Rice - 2 cups", "Yogurt - 1 cup", "Biryani Masala - 3 tbsp"]
+    },
+    {
+      "idMeal": "custom_2",
+      "strMeal": "Masala Dosa",
+      "strArea": "South Indian",
+      "strCategory": "Breakfast",
+      "strMealThumb": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800",
+      "strInstructions": "1. Prepare potato masala.\n2. Spread batter thinly on a hot tawa.\n3. Add oil until crispy.\n4. Place masala and fold.",
+      "strYoutube": "",
+      "customIng": ["Dosa Batter - 2 cups", "Potatoes - 3 boiled", "Mustard Seeds - 1 tsp"]
+    }
+  ]
+}
