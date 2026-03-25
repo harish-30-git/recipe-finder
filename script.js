@@ -1,59 +1,45 @@
 const grid = document.getElementById('recipeGrid');
 const modal = document.getElementById('recipeModal');
 const modalData = document.getElementById('modalData');
-
-// NEW: Store custom recipes globally after loading
 let customRecipes = [];
+let favorites = JSON.parse(localStorage.getItem('gourmetFavs')) || [];
 
-// NEW: Load JSON data on startup
 async function loadLocalData() {
     try {
         const res = await fetch('recipes.json');
         const data = await res.json();
         customRecipes = data.customRecipes;
-        // Start by showing custom Indian recipes
         filterByCuisine('Indian');
     } catch (e) {
-        console.log("Local JSON not found, falling back to API.");
         filterByCuisine('Indian');
     }
 }
 
 async function apiCall(url, isKeyword = false) {
     grid.innerHTML = "<div class='loader'>Curating your menu...</div>";
-    try {
-        const res = await fetch(url);
-        const data = await res.json();
-        
-        let meals = data.meals || [];
+    const res = await fetch(url);
+    const data = await res.json();
+    let meals = data.meals || [];
 
-        // NEW: If searching for Biryani/Dosa/South Indian, merge with our JSON
-        if (isKeyword) {
-            const searchVal = document.getElementById('searchInput').value.toLowerCase();
-            const localMatches = customRecipes.filter(r => 
-                r.strMeal.toLowerCase().includes(searchVal) || 
-                r.strArea.toLowerCase().includes(searchVal)
-            );
-            meals = [...localMatches, ...meals];
-        }
-
-        display(meals);
-    } catch (e) { grid.innerHTML = "Chef is busy. Try again!"; }
+    if (isKeyword) {
+        const searchVal = document.getElementById('searchInput').value.toLowerCase();
+        const localMatches = customRecipes.filter(r => 
+            r.strMeal.toLowerCase().includes(searchVal) || r.strArea.toLowerCase().includes(searchVal)
+        );
+        meals = [...localMatches, ...meals];
+    }
+    display(meals);
 }
 
 function filterByCuisine(area) {
-    // If South Indian, load from JSON first
     if(area === 'South Indian') {
-        const matches = customRecipes.filter(r => r.strArea === 'South Indian');
-        display(matches);
+        display(customRecipes.filter(r => r.strArea === 'South Indian'));
     } else {
         apiCall(`https://www.themealdb.com/api/json/v1/1/filter.php?a=${area}`);
     }
 }
 
 function filterByCategory(cat) { apiCall(`https://www.themealdb.com/api/json/v1/1/filter.php?c=${cat}`); }
-
-// Updated to pass 'true' for keyword search
 function filterByKeyword(word) { apiCall(`https://www.themealdb.com/api/json/v1/1/search.php?s=${word}`, true); }
 
 document.getElementById('searchBtn').addEventListener('click', () => filterByKeyword(document.getElementById('searchInput').value));
@@ -61,58 +47,72 @@ document.getElementById('randomBtn').addEventListener('click', () => apiCall('ht
 
 function display(meals) {
     if (!meals || meals.length === 0) {
-        grid.innerHTML = "<h3>Oops! No dishes found. Try 'Cake' or 'Paneer'!</h3>";
+        grid.innerHTML = "<h3>No dishes found.</h3>";
         return;
     }
-    grid.innerHTML = meals.map(m => `
-        <div class="recipe-card" onclick="openFullRecipe('${m.idMeal}')">
-            <img src="${m.strMealThumb}" alt="${m.strMeal}">
-            <div class="recipe-info">
-                <h2 style="font-family:'Playfair Display'; margin:0 0 10px 0;">${m.strMeal}</h2>
-                <span style="color:var(--gold); font-weight:bold;">View Secrets →</span>
+    grid.innerHTML = meals.map(m => {
+        const isFav = favorites.some(fav => fav.idMeal === m.idMeal);
+        return `
+            <div class="recipe-card">
+                <button class="fav-icon ${isFav ? 'active' : ''}" onclick="toggleFavorite('${m.idMeal}', '${m.strMeal}', '${m.strMealThumb}')">
+                    ${isFav ? '❤️' : '🤍'}
+                </button>
+                <div onclick="openFullRecipe('${m.idMeal}')">
+                    <img src="${m.strMealThumb}" alt="${m.strMeal}">
+                    <div class="recipe-info">
+                        <h2>${m.strMeal}</h2>
+                        <span style="color:var(--gold); font-size:0.8rem; font-weight:bold;">EXPLORE RECIPE →</span>
+                    </div>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
+}
+
+function toggleFavorite(id, name, img) {
+    const index = favorites.findIndex(f => f.idMeal === id);
+    if (index === -1) {
+        favorites.push({ idMeal: id, strMeal: name, strMealThumb: img });
+    } else {
+        favorites.splice(index, 1);
+    }
+    localStorage.setItem('gourmetFavs', JSON.stringify(favorites));
+    display(favorites.length > 0 ? favorites : []); // Refresh display if in favorites view
+    if (favorites.length === 0) filterByCuisine('Indian'); 
+}
+
+function displayFavorites() {
+    display(favorites);
 }
 
 async function openFullRecipe(id) {
-    let m;
-    // Check if ID is from our custom JSON
-    const customMatch = customRecipes.find(r => r.idMeal === id);
-    
-    if (customMatch) {
-        m = customMatch;
-    } else {
+    let m = customRecipes.find(r => r.idMeal === id);
+    if (!m) {
         const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
         const data = await res.json();
         m = data.meals[0];
     }
 
     let ytEmbed = "";
-    if (m.strYoutube) {
-        // Handle both full URLs and embed URLs
+    if (m.strYoutube && m.strYoutube !== "") {
         const vidId = m.strYoutube.includes('v=') ? m.strYoutube.split('v=')[1].split('&')[0] : m.strYoutube.split('/').pop();
-        ytEmbed = `<div class="video-wrapper">
-            <iframe src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>
-        </div>`;
+        ytEmbed = `<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe></div>`;
     }
 
     modalData.innerHTML = `
-        <h1 style="color:var(--gold); font-family:'Playfair Display'; font-size:2.5rem; margin-top:0;">${m.strMeal}</h1>
-        <div style="display:flex; justify-content:space-between; color:#888; margin-bottom:20px;">
-            <span>${m.strArea} Cuisine</span>
-            <span>Category: ${m.strCategory}</span>
-        </div>
-        <img src="${m.strMealThumb}" style="width:100%; border-radius:25px; margin-bottom:30px;">
-        
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:40px;">
+        <h1 style="color:var(--gold); font-family:'Playfair Display'; margin-bottom:10px;">${m.strMeal}</h1>
+        <p style="color:#666; margin-bottom:20px;">${m.strArea} Cuisine • ${m.strCategory}</p>
+        <img src="${m.strMealThumb}" style="width:100%; border-radius:20px; aspect-ratio:16/9; object-fit:cover; margin-bottom:30px;">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:40px; text-align:left;">
             <div>
-                <h3 style="border-bottom:2px solid var(--gold); padding-bottom:10px;">Ingredients</h3>
-                <ul style="list-style: none; padding:0;">${m.ingredients ? m.ingredients.map(i => `<li>${i}</li>`).join('') : getIng(m)}</ul>
+                <h3 style="border-bottom:1px solid var(--gold); padding-bottom:10px;">Ingredients</h3>
+                <ul style="list-style: none; padding:0; margin-top:15px;">
+                    ${m.ingredients ? m.ingredients.map(i => `<li style="padding:5px 0; color:#ccc;">• ${i}</li>`).join('') : getIng(m)}
+                </ul>
             </div>
             <div>
-                <h3 style="border-bottom:2px solid var(--gold); padding-bottom:10px;">Preparation</h3>
-                <p style="color:#bbb; line-height:1.8; white-space: pre-line;">${m.strInstructions}</p>
+                <h3 style="border-bottom:1px solid var(--gold); padding-bottom:10px;">Preparation</h3>
+                <p style="color:#aaa; line-height:1.8; margin-top:15px; white-space:pre-line;">${m.strInstructions}</p>
             </div>
         </div>
         ${ytEmbed}
@@ -124,11 +124,7 @@ async function openFullRecipe(id) {
 function getIng(m) {
     let html = "";
     for (let i = 1; i <= 20; i++) {
-        if (m[`strIngredient${i}`]) {
-            html += `<li style="padding:8px 0; border-bottom:1px solid #222;">
-                <span style="color:var(--gold)">●</span> ${m[`strIngredient${i}`]} - ${m[`strMeasure${i}`]}
-            </li>`;
-        }
+        if (m[`strIngredient${i}`]) html += `<li style="padding:5px 0; color:#ccc; border-bottom:1px solid #222;">${m[`strIngredient${i}`]} - ${m[`strMeasure${i}`]}</li>`;
     }
     return html;
 }
@@ -138,5 +134,4 @@ document.querySelector('.close-btn').onclick = () => {
     document.body.style.overflow = "auto";
 };
 
-// Initial Load
 loadLocalData();
