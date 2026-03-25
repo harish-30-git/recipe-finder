@@ -14,7 +14,7 @@
         <nav class="cuisine-nav">
             <button onclick="filterByCuisine('Indian')">Indian</button>
             <button onclick="filterByCuisine('Italian')">Italian</button>
-            <button onclick="filterByCuisine('French')">Continental</button>
+            <button onclick="displayFavorites()" class="fav-nav-btn">❤️ Favorites</button>
             <button id="randomBtn" class="surprise-btn">Surprise Me</button>
         </nav>
     </header>
@@ -31,12 +31,11 @@
         <button class="chip" onclick="filterByCategory('Main')">Main Course</button>
         <button class="chip" onclick="filterByKeyword('Biryani')">Biryani Special</button>
         <button class="chip" onclick="filterByCategory('Dessert')">Cakes & Desserts</button>
-        <button class="chip" onclick="filterByKeyword('Dosa')">South Indian</button>
+        <button class="chip" onclick="filterByCuisine('South Indian')">South Indian</button>
     </div>
 
     <main class="container">
-        <div id="recipeGrid" class="recipe-grid">
-            </div>
+        <div id="recipeGrid" class="recipe-grid"></div>
     </main>
 
     <div id="recipeModal" class="modal">
