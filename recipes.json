@@ -6,9 +6,9 @@
       "strArea": "Indian",
       "strCategory": "Main Course",
       "strMealThumb": "https://images.unsplash.com/photo-1563379091339-03b21bc4a4f8?auto=format&fit=crop&w=800",
-      "strInstructions": "1. Marinate chicken with yogurt and spices.\n2. Parboil basmati rice with whole spices.\n3. Layer the chicken and rice in a pot.\n4. Dum cook for 30 mins.",
+      "strInstructions": "1. Marinate chicken.\n2. Layer with parboiled rice.\n3. Dum cook for 30 mins.",
       "strYoutube": "https://www.youtube.com/embed/95BCU1n268Y",
-      "customIng": ["Chicken - 500g", "Basmati Rice - 2 cups", "Yogurt - 1 cup", "Biryani Masala - 3 tbsp"]
+      "ingredients": ["Chicken - 500g", "Basmati Rice - 2 cups", "Biryani Masala"]
     },
     {
       "idMeal": "custom_2",
@@ -16,9 +16,19 @@
       "strArea": "South Indian",
       "strCategory": "Breakfast",
       "strMealThumb": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800",
-      "strInstructions": "1. Prepare potato masala.\n2. Spread batter thinly on a hot tawa.\n3. Add oil until crispy.\n4. Place masala and fold.",
-      "strYoutube": "",
-      "customIng": ["Dosa Batter - 2 cups", "Potatoes - 3 boiled", "Mustard Seeds - 1 tsp"]
+      "strInstructions": "1. Spread batter on tawa.\n2. Fill with potato masala.\n3. Serve hot.",
+      "strYoutube": "https://www.youtube.com/embed/Cc8O_Z_u-jE",
+      "ingredients": ["Dosa Batter", "Potatoes", "Spices"]
+    },
+    {
+      "idMeal": "custom_3",
+      "strMeal": "Fudgy Chocolate Brownies",
+      "strArea": "Continental",
+      "strCategory": "Dessert",
+      "strMealThumb": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800",
+      "strInstructions": "1. Melt chocolate.\n2. Add dry ingredients.\n3. Bake at 180C for 25 mins.",
+      "strYoutube": "https://www.youtube.com/embed/5m99P_pYvYo",
+      "ingredients": ["Dark Chocolate", "Butter", "Cocoa Powder"]
     }
   ]
 }
