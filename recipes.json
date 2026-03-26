@@ -4,31 +4,12 @@
       "idMeal": "custom_1",
       "strMeal": "Hyderabadi Chicken Biryani",
       "strArea": "Indian",
-      "strCategory": "Main Course",
+      "strInstructions": "1. Marinate chicken.\n2. Layer rice.\n3. Dum cook.",
       "strMealThumb": "https://images.unsplash.com/photo-1563379091339-03b21bc4a4f8?auto=format&fit=crop&w=800",
-      "strInstructions": "1. Marinate chicken.\n2. Layer with parboiled rice.\n3. Dum cook for 30 mins.",
-      "strYoutube": "https://www.youtube.com/embed/95BCU1n268Y",
-      "ingredients": ["Chicken - 500g", "Basmati Rice - 2 cups", "Biryani Masala"]
-    },
-    {
-      "idMeal": "custom_2",
-      "strMeal": "Masala Dosa",
-      "strArea": "South Indian",
-      "strCategory": "Breakfast",
-      "strMealThumb": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800",
-      "strInstructions": "1. Spread batter on tawa.\n2. Fill with potato masala.\n3. Serve hot.",
-      "strYoutube": "https://www.youtube.com/embed/Cc8O_Z_u-jE",
-      "ingredients": ["Dosa Batter", "Potatoes", "Spices"]
-    },
-    {
-      "idMeal": "custom_3",
-      "strMeal": "Fudgy Chocolate Brownies",
-      "strArea": "Continental",
-      "strCategory": "Dessert",
-      "strMealThumb": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800",
-      "strInstructions": "1. Melt chocolate.\n2. Add dry ingredients.\n3. Bake at 180C for 25 mins.",
-      "strYoutube": "https://www.youtube.com/embed/5m99P_pYvYo",
-      "ingredients": ["Dark Chocolate", "Butter", "Cocoa Powder"]
+      "strYoutube": "https://www.youtube.com/watch?v=95BCU1n268Y",
+      "strIngredient1": "Chicken", "strMeasure1": "500g",
+      "strIngredient2": "Basmati Rice", "strMeasure2": "2cups",
+      "strIngredient3": "Yogurt", "strMeasure3": "1cup"
     }
   ]
 }
