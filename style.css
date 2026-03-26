@@ -2,7 +2,7 @@
     --gold: #D4AF37;
     --dark: #0A0A0A;
     --card-bg: #161616;
-    --glass: rgba(255, 255, 255, 0.03);
+    --glass: rgba(255, 255, 255, 0.05);
 }
 
 body {
@@ -10,82 +10,55 @@ body {
     color: #fff;
     font-family: 'Outfit', sans-serif;
     margin: 0;
-    line-height: 1.6;
+    transition: 0.5s;
 }
 
+/* Luxury Navbar */
 .navbar {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 15px 6%; background: rgba(10, 10, 10, 0.85);
-    backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 1000;
-    border-bottom: 1px solid #222;
+    display: flex; justify-content: space-between; padding: 15px 6%;
+    background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(15px);
+    position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #222;
 }
-
-.logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 800; }
+.logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; }
 .logo span { color: var(--gold); }
+.cuisine-nav button { background: none; border: none; color: #888; margin-left: 20px; cursor: pointer; }
+.gold-text { color: var(--gold) !important; }
 
-.cuisine-nav button {
-    background: transparent; border: none; color: #888; margin-left: 20px;
-    font-size: 0.9rem; cursor: pointer; transition: 0.3s;
+/* Shopping Sidebar */
+.sidebar {
+    position: fixed; right: -350px; top: 0; width: 300px; height: 100%;
+    background: #111; z-index: 3000; padding: 30px; transition: 0.4s;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.5); border-left: 1px solid var(--gold);
 }
-.cuisine-nav button:hover, .fav-nav-btn:hover { color: var(--gold); }
+.sidebar.active { right: 0; }
+.sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; margin-bottom: 20px; }
+.shopping-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.9rem; }
 
-.search-hero { padding: 60px 0 30px; text-align: center; }
-.search-container {
-    display: inline-flex; background: var(--glass); padding: 6px;
-    border-radius: 100px; border: 1px solid #333; width: 90%; max-width: 550px;
-}
-.search-container input {
-    background: transparent; border: none; color: white; padding: 10px 20px;
-    width: 100%; outline: none; font-size: 1rem;
-}
-.search-container button {
-    background: var(--gold); border: none; padding: 10px 25px;
-    border-radius: 100px; font-weight: 700; cursor: pointer;
-}
-
-.filter-chips { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; flex-wrap: wrap; }
-.chip {
-    background: transparent; border: 1px solid #333; color: #aaa;
-    padding: 8px 20px; border-radius: 50px; cursor: pointer; font-size: 0.85rem; transition: 0.3s;
-}
-.chip:hover { border-color: var(--gold); color: var(--gold); }
-
-.recipe-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px; padding: 0 6% 80px;
-}
-
-.recipe-card {
-    background: var(--card-bg); border-radius: 20px; overflow: hidden;
-    transition: 0.4s ease; border: 1px solid #222; position: relative;
+/* Grid & Cards */
+.recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; padding: 40px 6%; }
+.recipe-card { 
+    background: var(--card-bg); border-radius: 20px; overflow: hidden; 
+    border: 1px solid #222; transition: 0.4s; position: relative;
 }
 .recipe-card:hover { transform: translateY(-10px); border-color: var(--gold); }
-
-/* FIXED IMAGE SIZE */
-.recipe-card img { 
-    width: 100%; 
-    aspect-ratio: 4/3; 
-    object-fit: cover; 
-}
-
+.recipe-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
 .recipe-info { padding: 20px; text-align: center; }
-.recipe-info h2 { font-size: 1.1rem; margin-bottom: 15px; font-family: 'Playfair Display'; }
 
-.fav-icon {
-    position: absolute; top: 15px; right: 15px;
-    background: rgba(0,0,0,0.6); border: none; border-radius: 50%;
-    width: 35px; height: 35px; cursor: pointer; color: white; font-size: 1.2rem;
-    display: flex; align-items: center; justify-content: center; transition: 0.3s;
+/* Favorites Button on Card */
+.fav-btn {
+    position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6);
+    border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; color: white;
 }
-.fav-icon.active { color: #E63946; }
+.fav-btn.active { color: #ff4757; }
 
-.modal-content { 
-    background: #0D0D0D; margin: 40px auto; width: 92%; max-width: 850px; 
-    border-radius: 30px; padding: 40px; border: 1px solid #222;
-}
+/* Modal & Serving Calculator */
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; overflow-y: auto; }
+.modal-content { background: #0F0F0F; margin: 40px auto; width: 90%; max-width: 900px; border-radius: 30px; padding: 40px; }
+.servings-controls { background: var(--glass); display: inline-flex; align-items: center; padding: 5px 15px; border-radius: 50px; margin-bottom: 20px; border: 1px solid #333; }
+.servings-controls button { background: none; border: none; color: var(--gold); font-size: 1.5rem; cursor: pointer; padding: 0 10px; }
 
-.video-wrapper {
-    position: relative; padding-bottom: 56.25%; height: 0; 
-    margin: 30px 0; border-radius: 20px; overflow: hidden; border: 1px solid #333;
-}
+.video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; margin-top: 30px; border-radius: 20px; overflow: hidden; }
 .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+.chip { background: transparent; border: 1px solid #333; color: #aaa; padding: 8px 20px; border-radius: 50px; cursor: pointer; margin: 5px; }
+.chip:hover { border-color: var(--gold); color: var(--gold); }
