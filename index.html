@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gourmet Royale | Global Kitchen</title>
+    <title>Gourmet Royale | The Elite Kitchen</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,700;1,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -14,24 +14,31 @@
         <nav class="cuisine-nav">
             <button onclick="filterByCuisine('Indian')">Indian</button>
             <button onclick="filterByCuisine('Italian')">Italian</button>
-            <button onclick="displayFavorites()" class="fav-nav-btn">❤️ Favorites</button>
-            <button id="randomBtn" class="surprise-btn">Surprise Me</button>
+            <button onclick="showFavorites()" class="gold-text">❤️ Favorites</button>
+            <button onclick="toggleShoppingList()">🛒 List (<span id="cartCount">0</span>)</button>
         </nav>
     </header>
 
+    <div id="shoppingSidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h2>Shopping List</h2>
+            <span class="close-sidebar" onclick="toggleShoppingList()">&times;</span>
+        </div>
+        <div id="shoppingItems"></div>
+        <button onclick="clearList()" class="clear-btn">Clear All</button>
+    </div>
+
     <div class="search-hero">
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search Biryani, Pasta, Brownies, Dosa...">
+            <input type="text" id="searchInput" placeholder="Search Biryani, Dosa, Pasta...">
             <button id="searchBtn">Find Recipe</button>
         </div>
     </div>
 
     <div class="filter-chips">
-        <button class="chip" onclick="filterByCategory('Starter')">Starters</button>
-        <button class="chip" onclick="filterByCategory('Main')">Main Course</button>
-        <button class="chip" onclick="filterByKeyword('Biryani')">Biryani Special</button>
-        <button class="chip" onclick="filterByCategory('Dessert')">Cakes & Desserts</button>
+        <button class="chip" onclick="filterByCategory('Dessert')">Desserts</button>
         <button class="chip" onclick="filterByCuisine('South Indian')">South Indian</button>
+        <button class="chip" onclick="apiCall('https://www.themealdb.com/api/json/v1/1/random.php')">Surprise Me</button>
     </div>
 
     <main class="container">
@@ -40,7 +47,7 @@
 
     <div id="recipeModal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
             <div id="modalData"></div>
         </div>
     </div>
