@@ -2,90 +2,102 @@ const grid = document.getElementById('recipeGrid');
 const modal = document.getElementById('recipeModal');
 const modalData = document.getElementById('modalData');
 let customRecipes = [];
-let favorites = JSON.parse(localStorage.getItem('gourmetFavs')) || [];
+let favorites = JSON.parse(localStorage.getItem('favs')) || [];
+let shoppingList = JSON.parse(localStorage.getItem('shopList')) || [];
+let currentServings = 2;
 
-async function loadLocalData() {
+// 1. Initialize & Load
+async function init() {
     try {
         const res = await fetch('recipes.json');
         const data = await res.json();
         customRecipes = data.customRecipes;
-        filterByCuisine('Indian');
-    } catch (e) {
-        filterByCuisine('Indian');
-    }
+    } catch (e) { console.warn("Local JSON missing."); }
+    updateCartCount();
+    filterByCuisine('Indian');
 }
 
+// 2. Core API & Display
 async function apiCall(url, isKeyword = false) {
-    grid.innerHTML = "<div class='loader'>Curating your menu...</div>";
+    grid.innerHTML = "<div class='loader'>Chef is preparing...</div>";
     const res = await fetch(url);
     const data = await res.json();
     let meals = data.meals || [];
-
     if (isKeyword) {
-        const searchVal = document.getElementById('searchInput').value.toLowerCase();
-        const localMatches = customRecipes.filter(r => 
-            r.strMeal.toLowerCase().includes(searchVal) || r.strArea.toLowerCase().includes(searchVal)
-        );
-        meals = [...localMatches, ...meals];
+        const val = document.getElementById('searchInput').value.toLowerCase();
+        const local = customRecipes.filter(r => r.strMeal.toLowerCase().includes(val));
+        meals = [...local, ...meals];
     }
     display(meals);
 }
 
-function filterByCuisine(area) {
-    if(area === 'South Indian') {
-        display(customRecipes.filter(r => r.strArea === 'South Indian'));
-    } else {
-        apiCall(`https://www.themealdb.com/api/json/v1/1/filter.php?a=${area}`);
-    }
-}
-
-function filterByCategory(cat) { apiCall(`https://www.themealdb.com/api/json/v1/1/filter.php?c=${cat}`); }
-function filterByKeyword(word) { apiCall(`https://www.themealdb.com/api/json/v1/1/search.php?s=${word}`, true); }
-
-document.getElementById('searchBtn').addEventListener('click', () => filterByKeyword(document.getElementById('searchInput').value));
-document.getElementById('randomBtn').addEventListener('click', () => apiCall('https://www.themealdb.com/api/json/v1/1/random.php'));
-
 function display(meals) {
-    if (!meals || meals.length === 0) {
-        grid.innerHTML = "<h3>No dishes found.</h3>";
-        return;
-    }
     grid.innerHTML = meals.map(m => {
-        const isFav = favorites.some(fav => fav.idMeal === m.idMeal);
+        const isFav = favorites.some(f => f.idMeal === m.idMeal);
         return `
             <div class="recipe-card">
-                <button class="fav-icon ${isFav ? 'active' : ''}" onclick="toggleFavorite('${m.idMeal}', '${m.strMeal}', '${m.strMealThumb}')">
+                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav('${m.idMeal}', '${m.strMeal}', '${m.strMealThumb}')">
                     ${isFav ? '❤️' : '🤍'}
                 </button>
-                <div onclick="openFullRecipe('${m.idMeal}')">
-                    <img src="${m.strMealThumb}" alt="${m.strMeal}">
-                    <div class="recipe-info">
-                        <h2>${m.strMeal}</h2>
-                        <span style="color:var(--gold); font-size:0.8rem; font-weight:bold;">EXPLORE RECIPE →</span>
-                    </div>
+                <img src="${m.strMealThumb}" onclick="openFullRecipe('${m.idMeal}')">
+                <div class="recipe-info">
+                    <h3 style="font-family:'Playfair Display'">${m.strMeal}</h3>
+                    <button class="chip" onclick="openFullRecipe('${m.idMeal}')">View Recipe</button>
                 </div>
             </div>
         `;
     }).join('');
 }
 
-function toggleFavorite(id, name, img) {
-    const index = favorites.findIndex(f => f.idMeal === id);
-    if (index === -1) {
-        favorites.push({ idMeal: id, strMeal: name, strMealThumb: img });
-    } else {
-        favorites.splice(index, 1);
+// 3. Servings & Ingredients Logic
+function updateServings(delta, id) {
+    currentServings = Math.max(1, currentServings + delta);
+    document.getElementById('servingsNum').innerText = currentServings;
+    const ingList = document.querySelectorAll('.ing-item');
+    ingList.forEach(li => {
+        const base = parseFloat(li.dataset.base);
+        if (base) {
+            const newQty = (base * (currentServings / 2)).toFixed(1);
+            li.querySelector('.qty').innerText = newQty.endsWith('.0') ? Math.round(newQty) : newQty;
+        }
+    });
+}
+
+// 4. Shopping List Logic
+function toggleShoppingList() { document.getElementById('shoppingSidebar').classList.toggle('active'); }
+
+function addToCart(ing) {
+    if (!shoppingList.includes(ing)) {
+        shoppingList.push(ing);
+        localStorage.setItem('shopList', JSON.stringify(shoppingList));
+        updateCartCount();
+        renderShoppingList();
     }
-    localStorage.setItem('gourmetFavs', JSON.stringify(favorites));
-    display(favorites.length > 0 ? favorites : []); // Refresh display if in favorites view
-    if (favorites.length === 0) filterByCuisine('Indian'); 
 }
 
-function displayFavorites() {
-    display(favorites);
+function renderShoppingList() {
+    const container = document.getElementById('shoppingItems');
+    container.innerHTML = shoppingList.map((item, index) => `
+        <div class="shopping-item">
+            <span>${item}</span>
+            <span onclick="removeItem(${index})" style="cursor:pointer; color:red;">&times;</span>
+        </div>
+    `).join('');
 }
 
+function removeItem(i) {
+    shoppingList.splice(i, 1);
+    localStorage.setItem('shopList', JSON.stringify(shoppingList));
+    updateCartCount();
+    renderShoppingList();
+}
+
+function updateCartCount() { document.getElementById('cartCount').innerText = shoppingList.length; }
+function clearList() { shoppingList = []; localStorage.clear(); updateCartCount(); renderShoppingList(); }
+
+// 5. Recipe Modal Logic
 async function openFullRecipe(id) {
+    currentServings = 2; // Reset
     let m = customRecipes.find(r => r.idMeal === id);
     if (!m) {
         const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
@@ -93,45 +105,67 @@ async function openFullRecipe(id) {
         m = data.meals[0];
     }
 
-    let ytEmbed = "";
-    if (m.strYoutube && m.strYoutube !== "") {
-        const vidId = m.strYoutube.includes('v=') ? m.strYoutube.split('v=')[1].split('&')[0] : m.strYoutube.split('/').pop();
-        ytEmbed = `<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe></div>`;
-    }
-
     modalData.innerHTML = `
-        <h1 style="color:var(--gold); font-family:'Playfair Display'; margin-bottom:10px;">${m.strMeal}</h1>
-        <p style="color:#666; margin-bottom:20px;">${m.strArea} Cuisine • ${m.strCategory}</p>
-        <img src="${m.strMealThumb}" style="width:100%; border-radius:20px; aspect-ratio:16/9; object-fit:cover; margin-bottom:30px;">
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:40px; text-align:left;">
-            <div>
-                <h3 style="border-bottom:1px solid var(--gold); padding-bottom:10px;">Ingredients</h3>
-                <ul style="list-style: none; padding:0; margin-top:15px;">
-                    ${m.ingredients ? m.ingredients.map(i => `<li style="padding:5px 0; color:#ccc;">• ${i}</li>`).join('') : getIng(m)}
-                </ul>
+        <h1 style="color:var(--gold); font-family:'Playfair Display'">${m.strMeal}</h1>
+        
+        <div class="servings-controls">
+            <span>Servings: </span>
+            <button onclick="updateServings(-1)">-</button>
+            <b id="servingsNum">2</b>
+            <button onclick="updateServings(1)">+</button>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:30px;">
+            <div class="ing-section">
+                <h3>Ingredients <small>(Click 🛒 to add)</small></h3>
+                <ul id="ingUl">${getIngHTML(m)}</ul>
             </div>
             <div>
-                <h3 style="border-bottom:1px solid var(--gold); padding-bottom:10px;">Preparation</h3>
-                <p style="color:#aaa; line-height:1.8; margin-top:15px; white-space:pre-line;">${m.strInstructions}</p>
+                <h3>Instructions</h3>
+                <p style="white-space:pre-line; color:#ccc;">${m.strInstructions}</p>
             </div>
         </div>
-        ${ytEmbed}
+        ${m.strYoutube ? `<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/${m.strYoutube.split('v=')[1] || m.strYoutube.split('/').pop()}" frameborder="0" allowfullscreen></iframe></div>` : ''}
     `;
     modal.style.display = "block";
     document.body.style.overflow = "hidden";
 }
 
-function getIng(m) {
+function getIngHTML(m) {
     let html = "";
     for (let i = 1; i <= 20; i++) {
-        if (m[`strIngredient${i}`]) html += `<li style="padding:5px 0; color:#ccc; border-bottom:1px solid #222;">${m[`strIngredient${i}`]} - ${m[`strMeasure${i}`]}</li>`;
+        const name = m[`strIngredient${i}`];
+        const measure = m[`strMeasure${i}`];
+        if (name && name.trim() !== "") {
+            // Regex to extract numbers for the serving calculator
+            const numMatch = measure ? measure.match(/(\d+(\.\d+)?)/) : null;
+            const baseQty = numMatch ? numMatch[0] : null;
+            const unit = measure ? measure.replace(baseQty, '') : "";
+            
+            html += `
+                <li class="ing-item" data-base="${baseQty || ''}" style="margin-bottom:10px;">
+                    <button class="chip" style="padding:2px 10px;" onclick="addToCart('${name}')">🛒</button>
+                    <span class="qty">${baseQty || ''}</span>${unit} <b>${name}</b>
+                </li>`;
+        }
     }
     return html;
 }
 
-document.querySelector('.close-btn').onclick = () => {
-    modal.style.display = "none";
-    document.body.style.overflow = "auto";
-};
+// 6. Favorites Logic
+function toggleFav(id, name, img) {
+    const index = favorites.findIndex(f => f.idMeal === id);
+    if (index === -1) favorites.push({idMeal: id, strMeal: name, strMealThumb: img});
+    else favorites.splice(index, 1);
+    localStorage.setItem('favs', JSON.stringify(favorites));
+    location.reload(); 
+}
 
-loadLocalData();
+function showFavorites() { display(favorites); }
+function filterByCuisine(area) { apiCall(`https://www.themealdb.com/api/json/v1/1/filter.php?a=${area}`); }
+function filterByCategory(cat) { apiCall(`https://www.themealdb.com/api/json/v1/1/filter.php?c=${cat}`); }
+function filterByKeyword(word) { apiCall(`https://www.themealdb.com/api/json/v1/1/search.php?s=${word}`, true); }
+function closeModal() { modal.style.display = "none"; document.body.style.overflow = "auto"; }
+
+document.getElementById('searchBtn').addEventListener('click', () => filterByKeyword(document.getElementById('searchInput').value));
+init();
