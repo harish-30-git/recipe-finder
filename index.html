@@ -9,6 +9,16 @@
 </head>
 <body>
 
+    <header class="navbar">
+        <div class="logo">Gourmet<span>Royale</span></div>
+        <nav class="cuisine-nav">
+            <button onclick="filterByCuisine('Indian')">Indian</button>
+            <button onclick="filterByCuisine('Italian')">Italian</button>
+            <button onclick="showFavorites()" class="gold-text">❤️ Favorites</button>
+            <button onclick="toggleShoppingList()">🛒 List (<span id="cartCount">0</span>)</button>
+        </nav>
+    </header>
+
     <div id="shoppingSidebar" class="sidebar">
         <div class="sidebar-header">
             <h2>Shopping List</h2>
