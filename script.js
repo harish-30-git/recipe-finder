@@ -5,6 +5,7 @@ const modalData = document.getElementById('modalData');
 // NEW: Store custom recipes globally after loading
 let customRecipes = [];
 let revealObserver;
+let customCursorController;
 
 // NEW: Load JSON data on startup
 async function loadLocalData() {
@@ -150,8 +151,8 @@ window.onclick = (event) => {
 };
 
 function initExperience() {
-    initCustomCursor();
     initScrollProgress();
+    initCustomCursor();
     initMouseGlowParallax();
     initRevealObserver();
     initInteractiveStates();
@@ -159,47 +160,82 @@ function initExperience() {
 }
 
 function initCustomCursor() {
-    if (!window.matchMedia('(pointer: fine)').matches) {
+    if (!window.matchMedia('(pointer: fine)').matches || customCursorController) {
         return;
     }
 
-    const cursor = document.createElement('div');
-    const dot = document.createElement('div');
-    cursor.className = 'custom-cursor';
-    dot.className = 'custom-cursor-dot';
-    document.body.appendChild(cursor);
-    document.body.appendChild(dot);
+    const body = document.body;
+    const cursorRing = document.createElement('div');
+    cursorRing.className = 'custom-cursor';
+
+    const cursorDot = document.createElement('div');
+    cursorDot.className = 'custom-cursor-dot';
+
+    body.appendChild(cursorRing);
+    body.appendChild(cursorDot);
 
     let targetX = window.innerWidth / 2;
     let targetY = window.innerHeight / 2;
-    let x = targetX;
-    let y = targetY;
+    let ringX = targetX;
+    let ringY = targetY;
+    let dotX = targetX;
+    let dotY = targetY;
+    let lastScrollY = window.scrollY;
+    let scrollTimer;
+
+    const interactiveSelector = 'a, button, [role="button"], .recipe-card, .chip, .close-btn, .surprise-btn, .nav-btn, #searchBtn, input, textarea, select, label';
+
+    const setPosition = (element, x, y) => {
+        element.style.left = `${x}px`;
+        element.style.top = `${y}px`;
+    };
+
+    const animate = () => {
+        ringX += (targetX - ringX) * 0.2;
+        ringY += (targetY - ringY) * 0.2;
+        dotX += (targetX - dotX) * 0.45;
+        dotY += (targetY - dotY) * 0.45;
+
+        setPosition(cursorRing, ringX, ringY);
+        setPosition(cursorDot, dotX, dotY);
+        requestAnimationFrame(animate);
+    };
 
     document.addEventListener('mousemove', (event) => {
         targetX = event.clientX;
         targetY = event.clientY;
-        document.body.style.setProperty('--mx', `${targetX}px`);
-        document.body.style.setProperty('--my', `${targetY}px`);
-        dot.style.transform = `translate(${targetX}px, ${targetY}px)`;
-        document.body.classList.add('cursor-visible');
+
+        if (!body.classList.contains('cursor-ready')) {
+            body.classList.add('cursor-ready');
+        }
+
+        const isInteractive = event.target.closest(interactiveSelector);
+        body.classList.toggle('cursor-hover', Boolean(isInteractive));
     });
 
     document.addEventListener('mouseleave', () => {
-        document.body.classList.remove('cursor-visible');
+        body.classList.remove('cursor-ready', 'cursor-hover');
+        body.classList.remove('scroll-down', 'scroll-up');
     });
 
-    document.addEventListener('mouseover', (event) => {
-        const interactive = event.target.closest('button, a, input, .recipe-card, .chip, .close-btn');
-        document.body.classList.toggle('cursor-hover', Boolean(interactive));
-    });
+    window.addEventListener('scroll', () => {
+        const currentY = window.scrollY;
+        if (Math.abs(currentY - lastScrollY) < 2) {
+            return;
+        }
 
-    const animate = () => {
-        x += (targetX - x) * 0.18;
-        y += (targetY - y) * 0.18;
-        cursor.style.transform = `translate(${x}px, ${y}px)`;
-        requestAnimationFrame(animate);
-    };
+        body.classList.remove('scroll-down', 'scroll-up');
+        body.classList.add(currentY > lastScrollY ? 'scroll-down' : 'scroll-up');
 
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => {
+            body.classList.remove('scroll-down', 'scroll-up');
+        }, 260);
+
+        lastScrollY = currentY;
+    }, { passive: true });
+
+    customCursorController = { cursorRing, cursorDot };
     animate();
 }
 

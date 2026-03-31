@@ -30,18 +30,108 @@ body {
     overflow-x: hidden;
 }
 
-@media (pointer: fine) {
-    body {
-        cursor: none;
-    }
+body {
+    cursor: auto;
+}
 
+@media (pointer: fine) {
+    body,
     a,
     button,
+    [role="button"],
+    .recipe-card,
+    .chip,
+    .close-btn,
+    .surprise-btn,
+    .nav-btn,
+    #searchBtn,
     input,
     textarea,
     select,
-    [role="button"] {
+    label {
         cursor: none;
+    }
+
+    .custom-cursor,
+    .custom-cursor-dot {
+        position: fixed;
+        left: 0;
+        top: 0;
+        pointer-events: none;
+        opacity: 0;
+        z-index: 10000;
+        transform: translate(-50%, -50%);
+        transition: opacity 0.18s ease;
+    }
+
+    .custom-cursor {
+        width: 36px;
+        height: 36px;
+        border: 2px solid rgba(247, 251, 255, 0.94);
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.03));
+        box-shadow: 0 0 0 1px rgba(8, 16, 26, 0.45), 0 10px 24px rgba(0, 0, 0, 0.28);
+        transition: width 0.2s ease, height 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, opacity 0.18s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .custom-cursor::before {
+        content: "";
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 17px;
+        line-height: 1;
+        opacity: 0;
+        transform: translateY(-2px);
+        text-shadow: 0 0 10px rgba(4, 9, 15, 0.8);
+        transition: opacity 0.14s ease;
+    }
+
+    .custom-cursor-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ffd27f;
+        box-shadow: 0 0 0 5px rgba(255, 210, 127, 0.2), 0 0 16px rgba(255, 210, 127, 0.68);
+        transition: transform 0.16s ease, background 0.16s ease, opacity 0.18s ease;
+    }
+
+    body.cursor-ready .custom-cursor,
+    body.cursor-ready .custom-cursor-dot {
+        opacity: 1;
+    }
+
+    body.cursor-hover .custom-cursor {
+        width: 50px;
+        height: 50px;
+        border-color: rgba(255, 210, 127, 0.95);
+        background: radial-gradient(circle, rgba(255, 210, 127, 0.26), rgba(255, 210, 127, 0.05));
+        box-shadow: 0 0 0 1px rgba(19, 11, 4, 0.42), 0 14px 30px rgba(255, 166, 87, 0.3);
+    }
+
+    body.cursor-hover .custom-cursor-dot {
+        transform: translate(-50%, -50%) scale(1.5);
+        background: #fff2d8;
+    }
+
+    body.scroll-down .custom-cursor {
+        border-color: rgba(136, 240, 209, 0.98);
+    }
+
+    body.scroll-down .custom-cursor::before {
+        content: "↓";
+        opacity: 1;
+    }
+
+    body.scroll-up .custom-cursor {
+        border-color: rgba(179, 216, 255, 0.98);
+    }
+
+    body.scroll-up .custom-cursor::before {
+        content: "↑";
+        opacity: 1;
     }
 }
 
@@ -69,46 +159,6 @@ body::after {
     filter: blur(8px);
     z-index: -1;
     transition: transform 0.12s linear;
-}
-
-.custom-cursor,
-.custom-cursor-dot {
-    position: fixed;
-    pointer-events: none;
-    z-index: 5000;
-    opacity: 0;
-    transition: opacity 0.25s ease, transform 0.2s ease;
-}
-
-.custom-cursor {
-    width: 34px;
-    height: 34px;
-    margin-left: -17px;
-    margin-top: -17px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 210, 127, 0.8);
-    background: radial-gradient(circle, rgba(255, 210, 127, 0.18), rgba(255, 210, 127, 0));
-    box-shadow: 0 0 26px rgba(255, 169, 118, 0.35);
-}
-
-.custom-cursor-dot {
-    width: 8px;
-    height: 8px;
-    margin-left: -4px;
-    margin-top: -4px;
-    border-radius: 50%;
-    background: #fff3de;
-    box-shadow: 0 0 12px rgba(255, 217, 146, 0.45);
-}
-
-body.cursor-visible .custom-cursor,
-body.cursor-visible .custom-cursor-dot {
-    opacity: 1;
-}
-
-body.cursor-hover .custom-cursor {
-    transform: scale(1.35);
-    border-color: rgba(136, 240, 209, 0.9);
 }
 
 .bg-glow {
@@ -646,11 +696,6 @@ button {
 }
 
 @media (pointer: coarse) {
-    .custom-cursor,
-    .custom-cursor-dot {
-        display: none;
-    }
-
     body::after {
         display: none;
     }
